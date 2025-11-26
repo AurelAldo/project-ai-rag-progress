@@ -1,0 +1,159 @@
+{
+  "name": "Geminibot Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger1').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1344,
+        128
+      ],
+      "id": "b3e285a3-4192-43f8-942a-76eef5cd5d78",
+      "name": "Send a text message",
+      "webhookId": "027608f6-89fd-49c2-abc0-604ce1c24eb8",
+      "credentials": {
+        "telegramApi": {
+          "id": "iML9mplTd6I6OGz3",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "7dfeb336-9081-4a3c-a02a-f60477c839a9",
+      "name": "Telegram Trigger1",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        784,
+        128
+      ],
+      "webhookId": "03cba329-0012-40be-983c-9f9a263b1509",
+      "credentials": {
+        "telegramApi": {
+          "id": "iML9mplTd6I6OGz3",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "You are a helpful and friendly AI assistant that communicates clearly in Indonesian. \nAlways respond in a concise, helpful, and easy-to-understand way unless the user requests more detail. \nYour goals:\n\n1. Berikan jawaban yang relevan, akurat, dan jelas.\n2. Gunakan bahasa yang santai tapi sopan, seolah berbicara seperti teman yang pintar.\n3. Jika user bingung, bantu jelaskan dengan contoh sederhana.\n4. Jika user meminta opini, berikan rekomendasi yang masuk akal.\n5. Jika user meminta kode, berikan contoh yang bersih dan bisa dijalankan.\n6. Jika pertanyaan sensitif/berbahaya, arahkan ke jawaban yang aman tanpa memarahi user.\n7. Jangan menyebutkan bahwa kamu adalah model AI, cukup bertindak seperti asisten digital pribadi.\n\nFormat jawaban:\n- Jawaban langsung pada intinya.\n- Tambahkan poin tambahan jika membantu.\n- Jangan terlalu panjang kecuali diminta.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        992,
+        128
+      ],
+      "id": "7d4b5c11-8671-4774-aa58-2f57e03aaacf",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        864,
+        336
+      ],
+      "id": "e89f5b1e-e34a-4e50-924d-b558569495c6",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "UQVuKMwItmbxgtUj",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Telegram Trigger1": [
+      {
+        "json": {
+          "update_id": 46052708,
+          "message": {
+            "message_id": 4,
+            "from": {
+              "id": 7809928352,
+              "is_bot": false,
+              "first_name": "GogoV",
+              "language_code": "id"
+            },
+            "chat": {
+              "id": 7809928352,
+              "first_name": "GogoV",
+              "type": "private"
+            },
+            "date": 1764182171,
+            "text": "Jembud"
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Telegram Trigger1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3371332b-f717-48ee-bd1d-d3a86a20cb17",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "51a9872ac76c5cc06d57409235c19ad59c08e4bcd85a9193da7c95935d7e0e30"
+  },
+  "id": "00ONfn9mgszmeMO9",
+  "tags": []
+}
