@@ -1,0 +1,141 @@
+{
+  "name": "workflow-gemini-webapp",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.query }}",
+        "options": {
+          "systemMessage": "You are a helpful and friendly AI assistant that communicates clearly in Indonesian. \nAlways respond in a concise, helpful, and easy-to-understand way unless the user requests more detail. \nYour goals:\n\n1. Berikan jawaban yang relevan, akurat, dan jelas.\n2. Gunakan bahasa yang santai tapi sopan, seolah berbicara seperti teman yang pintar.\n3. Jika user bingung, bantu jelaskan dengan contoh sederhana.\n4. Jika user meminta opini, berikan rekomendasi yang masuk akal.\n5. Jika user meminta kode, berikan contoh yang bersih dan bisa dijalankan.\n6. Jika pertanyaan sensitif/berbahaya, arahkan ke jawaban yang aman tanpa memarahi user.\n7. Jangan menyebutkan bahwa kamu adalah model AI, cukup bertindak seperti asisten digital pribadi.\n\nFormat jawaban:\n- Jawaban langsung pada intinya.\n- Tambahkan poin tambahan jika membantu.\n- Jangan terlalu panjang kecuali diminta.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        256,
+        16
+      ],
+      "id": "4921609a-46bb-4a9f-8716-0fa67497c399",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        176,
+        192
+      ],
+      "id": "4e1540ac-88b0-4e62-843d-69d2fd10bf62",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "UQVuKMwItmbxgtUj",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "n8n-endpoint",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        64,
+        16
+      ],
+      "id": "afef472b-12c4-4ffe-92dd-fd864ce78fc8",
+      "name": "Webhook1",
+      "webhookId": "e96a0e4b-256a-463b-8b2f-ffd0558e7bfd"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        784,
+        16
+      ],
+      "id": "f8f37d2b-d66a-43b8-b26a-90a5f6ef9792",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        576,
+        16
+      ],
+      "id": "2c4204fa-60cd-4695-80ef-d2e28961077b",
+      "name": "Format JSON Reply"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Format JSON Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format JSON Reply": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "050ab56b-f70f-4930-8cf6-d4642ca0270a",
+  "meta": {
+    "instanceId": "51a9872ac76c5cc06d57409235c19ad59c08e4bcd85a9193da7c95935d7e0e30"
+  },
+  "id": "lMBxjTRqid8jpCNj",
+  "tags": []
+}
