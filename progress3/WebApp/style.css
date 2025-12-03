@@ -1,0 +1,45 @@
+/* Mengatur font agar lebih modern, menggunakan font sistem */
+body {
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+/* Mengatur agar textarea tidak memiliki scrollbar default */
+#userInput::-webkit-scrollbar {
+    display: none;
+}
+#userInput {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* Animasi untuk tombol Kirim saat disabled (sebagai indikator loading) */
+.send-btn-animation:disabled {
+    cursor: not-allowed;
+    background-color: #3b82f6; /* Blue 500 */
+}
+
+.send-btn-animation:disabled svg {
+    animation: pulse-svg 1s infinite;
+}
+
+@keyframes pulse-svg {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(0.95);
+    }
+}
+
+/* Styling untuk pesan user dan AI */
+.user-message {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.ai-message {
+    display: flex;
+    justify-content: flex-start;
+}
