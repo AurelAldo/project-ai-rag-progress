@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Assistant</title>
+    <!-- Memuat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Menghubungkan CSS kustom -->
+    <link rel="stylesheet" href="style.css" />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#10a37f', // GPT-like green
+              'primary-dark': '#0d8c6f',
+              'bg-main': '#343541', // Dark background like GPT
+              'bg-secondary': '#40414f',
+              'chat-user': '#343541',
+              'chat-ai': '#444654',
+              'text-primary': '#ececf1',
+              'text-secondary': '#8e8ea0',
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-bg-main min-h-screen flex flex-col antialiased font-sans text-text-primary">
+    <!-- Kontainer Utama Aplikasi -->
+    <div class="flex flex-col h-screen w-full">
+      <!-- Header -->
+      <header class="bg-bg-secondary border-b border-gray-700 px-4 py-3 flex items-center justify-between">
+        <h1 class="text-xl font-semibold text-text-primary">AI Assistant</h1>
+        <div class="flex items-center gap-2">
+          <button id="historyBtn" class="p-2 rounded-lg hover:bg-gray-700 transition-colors" title="Riwayat Chat">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3h18v18H3zM7 8h10M7 12h10M7 16h10" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Sidebar Riwayat (Hidden by default) -->
+      <div id="historySidebar" class="hidden fixed inset-y-0 right-0 w-80 bg-bg-secondary border-l border-gray-700 z-50 overflow-y-auto">
+        <div class="p-4">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-text-primary">Riwayat Chat</h2>
+            <button id="closeHistoryBtn" class="p-2 rounded-lg hover:bg-gray-700 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div id="historyList" class="space-y-2">
+            <!-- Riwayat akan dimuat di sini -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Overlay untuk sidebar -->
+      <div id="historyOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40"></div>
+
+      <!-- Area Pesan (Chat) -->
+      <main id="chatArea" class="flex-grow overflow-y-auto px-4 py-6 space-y-6">
+        <!-- Pesan Selamat Datang -->
+        <div class="ai-message">
+          <div class="flex gap-4 max-w-3xl mx-auto">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">AI</div>
+            <div class="flex-grow">
+              <div class="prose prose-invert max-w-none">
+                <p class="text-text-primary leading-relaxed">👋 Halo! Saya adalah Asisten AI Anda yang terhubung dengan knowledge base untuk memberikan jawaban yang akurat dan relevan.</p>
+                <p class="text-text-primary leading-relaxed mt-2">Silakan tanyakan apa yang ingin Anda ketahui, dan saya akan membantu Anda!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Pesan-pesan dinamis akan ditambahkan di sini oleh script.js -->
+      </main>
+
+      <!-- Input Area (Selalu di Bawah) -->
+      <div class="bg-bg-secondary border-t border-gray-700 px-4 py-3">
+        <div class="max-w-3xl mx-auto">
+          <!-- File Upload Area (Hidden by default) -->
+          <div id="fileUploadArea" class="hidden mb-2 p-2 bg-bg-main rounded-lg border border-gray-600">
+            <div class="flex items-center justify-between">
+              <span id="fileName" class="text-sm text-text-primary"></span>
+              <button id="removeFileBtn" class="text-text-secondary hover:text-text-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-end gap-2 rounded-xl border border-gray-600 bg-bg-main focus-within:border-primary transition-colors">
+            <input type="file" id="fileInput" class="hidden" accept=".pdf,.doc,.docx,.txt,.md,.jpg,.jpeg,.png,.gif" />
+            <button id="fileBtn" class="m-2 p-2 rounded-lg hover:bg-gray-700 transition-colors" title="Upload File">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+            </button>
+
+            <textarea id="userInput" rows="1" class="flex-grow p-3 text-base resize-none focus:outline-none bg-transparent text-text-primary placeholder-text-secondary max-h-40" placeholder="Tulis pesan Anda di sini..."></textarea>
+
+            <button id="sendBtn" class="m-2 p-2 rounded-lg bg-primary hover:bg-primary-dark text-white transition duration-150 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed" title="Kirim Pesan">
+              <!-- Ikon Kirim (Send) -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m22 2-7 20-4-9-9-4Z" />
+                <path d="M22 2 11 13" />
+              </svg>
+            </button>
+          </div>
+          <p class="text-xs text-text-secondary text-center mt-2">Powered by n8n Workflow & Pinecone RAG</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menghubungkan JavaScript -->
+    <script src="script.js"></script>
+  </body>
+</html>

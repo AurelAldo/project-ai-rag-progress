@@ -1,0 +1,146 @@
+/* Mengatur font agar lebih modern, menggunakan font sistem */
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+}
+
+/* Mengatur agar textarea tidak memiliki scrollbar default */
+#userInput::-webkit-scrollbar {
+  display: none;
+}
+#userInput {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Custom scrollbar untuk chat area */
+#chatArea::-webkit-scrollbar {
+  width: 8px;
+}
+#chatArea::-webkit-scrollbar-track {
+  background: #343541;
+}
+#chatArea::-webkit-scrollbar-thumb {
+  background: #565869;
+  border-radius: 4px;
+}
+#chatArea::-webkit-scrollbar-thumb:hover {
+  background: #6e6f7e;
+}
+
+/* Animasi untuk tombol Kirim saat disabled (sebagai indikator loading) */
+#sendBtn:disabled svg {
+  animation: pulse-svg 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-svg {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.9);
+  }
+}
+
+/* Styling untuk pesan user dan AI */
+.user-message {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ai-message {
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* Loading indicator untuk AI response */
+.loading-indicator {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.loading-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #8e8ea0;
+  animation: loading-bounce 1.4s ease-in-out infinite both;
+}
+
+.loading-dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes loading-bounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* History sidebar styles */
+#historySidebar {
+  transition: transform 0.3s ease;
+}
+
+#historySidebar.hidden {
+  transform: translateX(100%);
+}
+
+#historyOverlay {
+  transition: opacity 0.3s ease;
+}
+
+#historyOverlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Line clamp utility */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* File upload area */
+#fileUploadArea {
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
