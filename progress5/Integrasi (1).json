@@ -1,0 +1,719 @@
+{
+  "name": "Integrasi",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"],
+        "additionalFields": {}
+      },
+      "id": "643c99d6-330f-4fe1-879d-3d6c5ffcfa6d",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [832, -96],
+      "webhookId": "0c79af73-3b47-44f8-a422-6469fa8863da",
+      "credentials": {
+        "telegramApi": {
+          "id": "iML9mplTd6I6OGz3",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "question",
+              "value": "={{$json.message.text}}"
+            },
+            {
+              "name": "user_id",
+              "value": "={{$json.message.chat.id}}"
+            },
+            {
+              "name": "source",
+              "value": "telegram"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2e60954f-f247-42ee-a97e-1b71d178cd43",
+      "name": "Norm Telegram",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [992, -96]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "question",
+              "value": "={{$json.body.question}}"
+            },
+            {
+              "name": "user_id",
+              "value": "={{$json.body.user_id}}"
+            },
+            {
+              "name": "session_id",
+              "value": "={{$json.body.session_id}}"
+            },
+            {
+              "name": "source",
+              "value": "web"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "64d46c77-7c6b-4d7c-9f31-d4c8ba457174",
+      "name": "Norm WebApp",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [992, 160]
+    },
+    {
+      "parameters": {
+        "tableId": "chat_history",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $json.user_id }}"
+            },
+            {
+              "fieldId": "question",
+              "fieldValue": "={{ $json.question }}"
+            },
+            {
+              "fieldId": "session_id",
+              "fieldValue": "={{ $json.session_id }}"
+            }
+          ]
+        }
+      },
+      "id": "2e9dc907-c703-4aa8-8cb2-74e2c7651496",
+      "name": "Supabase - Save Question",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1248, 32],
+      "credentials": {
+        "supabaseApi": {
+          "id": "3KegTwzqTwnj0bmO",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "id",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "name": "user_id",
+              "value": "={{ $json.user_id }}"
+            },
+            {
+              "name": "session_id",
+              "value": "={{ $json.session_id }}"
+            },
+            {
+              "name": "question",
+              "value": "={{ $json.question }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "preserve-data-node",
+      "name": "Preserve Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [1400, 32]
+    },
+    {
+      "parameters": {
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "rag-index-1536",
+          "mode": "list",
+          "cachedResultName": "rag-index-1536"
+        },
+        "options": {
+          "pineconeNamespace": "AI Knowledge Base"
+        }
+      },
+      "id": "a3874177-fb99-4975-aea2-2b0cd9a6683f",
+      "name": "Pinecone Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [1536, 512],
+      "credentials": {
+        "pineconeApi": {
+          "id": "hMqijjnywLZXiIhO",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "knowledge_base",
+        "description": "WAJIB DIGUNAKAN untuk setiap pertanyaan yang memerlukan informasi dari knowledge base. Ini adalah sumber kebenaran utama. Jangan menjawab dari ingatan sendiri, HARUS cari di sini dulu."
+      },
+      "id": "ab9a2efd-11f4-49d3-abcb-912e992b1e60",
+      "name": "Knowledge Base Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [1616, 320]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "f388a7ca-6315-4b54-b98a-16c5a26d01f9",
+      "name": "Google Search (SerpAPI)",
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [1936, 272],
+      "credentials": {
+        "serpApi": {
+          "id": "n9EQt5XaIzW98iVR",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.question }}",
+        "options": {
+          "systemMessage": "Anda adalah Asisten AI yang membantu pengguna dengan informasi yang akurat. Ikuti PROSEDUR PRIORITAS ini untuk setiap pertanyaan:\n\n1. WAJIB cari dulu di `knowledge_base`. Ini adalah sumber kebenaran utama untuk informasi yang tersimpan.\n2. Jika dan HANYA JIKA tidak ketemu di knowledge base, gunakan `Google Search` (SerpAPI) untuk mencari informasi terkini.\n3. Gunakan pengetahuan umum (chat biasa) hanya sebagai opsi terakhir jika langkah 1 dan 2 gagal.\n\nJANGAN PERNAH menjawab pertanyaan yang memerlukan informasi spesifik langsung dari ingatan tanpa mengecek knowledge base terlebih dahulu."
+        }
+      },
+      "id": "c977e3b4-9522-4000-ad51-94f9f41dce13",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [1472, 32]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "user_id",
+              "value": "={{ $('Preserve Data').item.json.user_id }}"
+            },
+            {
+              "name": "session_id",
+              "value": "={{ $('Preserve Data').item.json.session_id }}"
+            },
+            {
+              "name": "question",
+              "value": "={{ $('Preserve Data').item.json.question }}"
+            },
+            {
+              "name": "output",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "merge-ai-output-node",
+      "name": "Merge AI Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [1640, 32]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "chat_history",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.user_id }}"
+            },
+            {
+              "keyName": "session_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.session_id }}"
+            },
+            {
+              "keyName": "question",
+              "condition": "eq",
+              "keyValue": "={{ $json.question }}"
+            }
+          ],
+          "matchType": "all"
+        },
+        "options": {
+          "sort": {
+            "keyName": "created_at",
+            "direction": "DESC"
+          },
+          "limit": 1
+        }
+      },
+      "id": "get-record-id-node",
+      "name": "Get Record ID",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1800, 32],
+      "credentials": {
+        "supabaseApi": {
+          "id": "3KegTwzqTwnj0bmO",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "id",
+              "value": "={{ $json[0].id }}"
+            },
+            {
+              "name": "output",
+              "value": "={{ $('Merge AI Output').item.json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "prepare-update-node",
+      "name": "Prepare Update",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [1960, 32]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "chat_history",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "=id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "answer",
+              "fieldValue": "={{ $json.output }}"
+            }
+          ]
+        }
+      },
+      "id": "55c16e4c-585a-45e0-a39c-d25e52bfd10f",
+      "name": "Supabase - Save Answer",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1792, 32],
+      "credentials": {
+        "supabaseApi": {
+          "id": "3KegTwzqTwnj0bmO",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "answer",
+              "value": "={{ $json.output || $json.answer || '' }}"
+            },
+            {
+              "name": "user_id",
+              "value": "={{ $json.user_id }}"
+            },
+            {
+              "name": "session_id",
+              "value": "={{ $json.session_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-response-node",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [1900, 32]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $('Norm Telegram').isExecuted ? 'telegram' : 'web' }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "telegram"
+            },
+            {
+              "value2": "web",
+              "output": 1
+            }
+          ]
+        }
+      },
+      "id": "6a7f35c7-be4a-48a8-8e16-ab0e521656cf",
+      "name": "Router by Source",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [2000, 0]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$json.user_id}}",
+        "text": "={{ $json.answer }}",
+        "additionalFields": {}
+      },
+      "id": "cf994559-dbdb-4e06-ac67-6353cc23420e",
+      "name": "Telegram Response",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [2240, -48],
+      "webhookId": "56a79a39-3e47-42c5-b758-3dfb3339d87c",
+      "credentials": {
+        "telegramApi": {
+          "id": "iML9mplTd6I6OGz3",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "741fb101-536f-44c3-9707-ab489a6fca10",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [1456, 320],
+      "credentials": {
+        "openAiApi": {
+          "id": "rNK9vodrjYn3Xj3A",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "ebc2136c-3f1e-4439-900a-459cc2c3354d",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [1536, 688],
+      "credentials": {
+        "openAiApi": {
+          "id": "rNK9vodrjYn3Xj3A",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseData": "json",
+          "responseBody": "={{ { \"answer\": $json.answer || $json.output || \"\" } }}"
+        }
+      },
+      "id": "f386c43f-6d5f-4184-bd65-c90f26615dc9",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [2240, 112]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "78974a61-d526-4043-9ec2-af27b8845cf5",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [1840, 528],
+      "credentials": {
+        "openAiApi": {
+          "id": "rNK9vodrjYn3Xj3A",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "rag-integration",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "4a1a6874-ff31-434b-aced-9721e443339f",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [832, 160],
+      "webhookId": "b776ef39-543c-4887-a6c3-92a349ae3f7e"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Norm Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Norm Telegram": {
+      "main": [
+        [
+          {
+            "node": "Supabase - Save Question",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Norm WebApp": {
+      "main": [
+        [
+          {
+            "node": "Supabase - Save Question",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase - Save Question": {
+      "main": [
+        [
+          {
+            "node": "Preserve Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preserve Data": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge AI Output": {
+      "main": [
+        [
+          {
+            "node": "Get Record ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Record ID": {
+      "main": [
+        [
+          {
+            "node": "Prepare Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Update": {
+      "main": [
+        [
+          {
+            "node": "Supabase - Save Answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase - Save Answer": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Router by Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router by Source": {
+      "main": [
+        [
+          {
+            "node": "Telegram Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Knowledge Base Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Search (SerpAPI)": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Knowledge Base Tool",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Knowledge Base Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Norm WebApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9377a3a9-d82b-435d-89ff-307281aeef63",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "51a9872ac76c5cc06d57409235c19ad59c08e4bcd85a9193da7c95935d7e0e30"
+  },
+  "id": "0Cca3ui6XKuGxd3d",
+  "tags": []
+}
