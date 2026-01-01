@@ -1,0 +1,11 @@
+tunnel: server-ai-rag
+credentials-file: /home/nonroot/.cloudflared/5c0aafd4-b66d-44f6-9b5c-e919977173d7.json
+
+ingress:
+  - hostname: n8n.airagcore.fun
+    service: http://n8n:5678
+
+  - hostname: webhook.airagcore.fun
+    service: http://n8n:5678
+
+  - service: http_status:404
